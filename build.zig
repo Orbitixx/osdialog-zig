@@ -11,17 +11,19 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const lib = b.addLibrary(.{
-        .linkage = .static,
-        .name = "osdialog-zig",
+    const module = b.addModule("osdialog-zig", .{
         .root_source_file = b.path("src/root.zig"),
         .target = target,
         .optimize = optimize,
     });
 
+    const lib = b.addLibrary(.{
+        .linkage = .static,
+        .name = "osdialog-zig",
+        .root_module = module,
+    });
+
     lib.addCSourceFile(.{ .file = b.path("src/osdialog/osdialog.c") });
-    lib.addIncludePath(b.path("src/osdialog/"));
-    lib.linkLibC();
 
     if (builtin.os.tag == .linux) {
         lib.linkSystemLibrary("gtk+-3.0");
@@ -34,16 +36,11 @@ pub fn build(b: *std.Build) void {
         lib.addCSourceFile(.{ .file = b.path("src/osdialog/osdialog_mac.m") });
     }
 
+    lib.addIncludePath(b.path("src/osdialog/"));
+    lib.linkLibC();
+
     b.installArtifact(lib);
 
-    // Export a MODULE that is linked to the library
-    const module = b.addModule("osdialog-zig", .{
-        .root_source_file = b.path("src/root.zig"),
-        .target = target,
-        .optimize = optimize,
-    });
-
-    module.linkLibrary(lib);
     // Creates a step for unit testing. This only builds the test executable
     // but does not run it.
     const lib_unit_tests = b.addTest(.{
