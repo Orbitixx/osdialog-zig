@@ -32,9 +32,8 @@ pub fn build(b: *std.Build) void {
         .root_module = lib_mod,
     });
 
-    // lib.addCSourceFile(.{ .file = b.path("src/macos/xpc/xpc_helper.c") });
-    // lib.addCSourceFile(.{ .file = b.path("src/macos/cocoa/drag_hover.m"), .flags = &.{"-fobjc-arc"} });
-    // lib.addIncludePath(b.path("src/macos/xpc/"));
+    lib.addCSourceFile(.{ .file = b.path("src/osdialog/osdialog.c") });
+    lib.addIncludePath(b.path("src/osdialog/"));
 
     // lib.linkLibC();
 
