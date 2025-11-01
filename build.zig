@@ -11,6 +11,8 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    lib_mod.addIncludePath(b.path("src/osdialog/"));
+
     const lib = b.addLibrary(.{
         .linkage = .static,
         .name = "osdialog-zig",
