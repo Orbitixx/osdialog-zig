@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 // Although this function looks imperative, it does not perform the build
 // directly and instead it mutates the build graph (`b`) that will be then
@@ -36,7 +37,17 @@ pub fn build(b: *std.Build) void {
     lib.addIncludePath(b.path("src/osdialog/"));
 
     lib.linkLibC();
-    // lib.installHeader(b.path("src/osdialog/osdialog.h"), "osdialog.h");
+
+    if (builtin.os.tag == .linux) {
+        lib.linkSystemLibrary("gtk+-3.0");
+        lib.addCSourceFile(.{ .file = b.path("src/osdialog/osdialog_gtk.c") });
+    } else if (builtin.os.tag == .windows) {
+        lib.linkSystemLibrary("comdlg32");
+        lib.addCSourceFile(.{ .file = b.path("src/osdialog/osdialog_win.c") });
+    } else if (builtin.os.tag.isDarwin()) {
+        lib.linkFramework("AppKit");
+        lib.addCSourceFile(.{ .file = b.path("src/osdialog/osdialog_mac.m") });
+    }
 
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
