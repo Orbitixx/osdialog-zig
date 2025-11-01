@@ -35,7 +35,8 @@ pub fn build(b: *std.Build) void {
     lib.addCSourceFile(.{ .file = b.path("src/osdialog/osdialog.c") });
     lib.addIncludePath(b.path("src/osdialog/"));
 
-    // lib.linkLibC();
+    lib.linkLibC();
+    // lib.installHeader(b.path("src/osdialog/osdialog.h"), "osdialog.h");
 
     // This declares intent for the library to be installed into the standard
     // location when the user invokes the "install" step (the default step when
