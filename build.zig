@@ -22,6 +22,10 @@ pub fn build(b: *std.Build) void {
         .root_module = lib_mod,
     });
 
+    lib.linkLibC();
+    addMacOSSystemPaths(lib);
+
+    lib.addIncludePath(b.path("src/osdialog/"));
     lib.addCSourceFile(.{ .file = b.path("src/osdialog/osdialog.c") });
 
     if (builtin.os.tag == .linux) {
@@ -35,9 +39,6 @@ pub fn build(b: *std.Build) void {
         lib.addCSourceFile(.{ .file = b.path("src/osdialog/osdialog_mac.m") });
     }
 
-    lib.addIncludePath(b.path("src/osdialog/"));
-    lib.linkLibC();
-
     b.installArtifact(lib);
 
     // Tests
@@ -49,4 +50,10 @@ pub fn build(b: *std.Build) void {
 
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_lib_unit_tests.step);
+}
+
+fn addMacOSSystemPaths(step: *std.Build.Step.Compile) void {
+    step.addSystemFrameworkPath(.{ .cwd_relative = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks" });
+    step.addSystemIncludePath(.{ .cwd_relative = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include" });
+    step.addLibraryPath(.{ .cwd_relative = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib" });
 }
